@@ -102,16 +102,16 @@ class Keel:
 
         return
 
-    def keel_lift(self, Boat, Sea, leewayAngle, boatSpeed):
-        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
-        cL, _ = lift_coefficients(effectiveLeewayAngle, self.aspectRatio)
+    def keel_lift(self, Boat, Sea, angleOfAttack, boatSpeed):
+        effectiveAoA = angleOfAttack * np.cos(np.radians(Boat.rollAngle))
+        cL, _ = lift_coefficients(effectiveAoA, self.aspectRatio)
         dynPressure = dynamic_pressure(Sea, boatSpeed)
         lift = dynPressure * self.area * cL
         return lift
 
-    def keel_resistance(self, Boat, Sea, leewayAngle, boatSpeed):
-        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
-        _, cD = lift_coefficients(effectiveLeewayAngle, self.aspectRatio)
+    def keel_resistance(self, Boat, Sea, angleOfAttack, boatSpeed):
+        effectiveAoA = angleOfAttack * np.cos(np.radians(Boat.rollAngle))
+        _, cD = lift_coefficients(effectiveAoA, self.aspectRatio)
         dynPressure = dynamic_pressure(Sea, boatSpeed)
         keelResistance = dynPressure * self.area * cD
         return keelResistance

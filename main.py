@@ -24,6 +24,7 @@ Foil = Foil(foilsDict)
 
 # Inizializzo deriva e timone
 Deriva = Keel(0.2,1.5)
+Timone = Keel(0.13, 1)
 
 # Inizializzo mare
 Garda = Sea(seasDict["Garda"])
