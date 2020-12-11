@@ -7,6 +7,8 @@ from stabilita_foil import stabilita_foil
 from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
+from xfoil import XFoil
+from xfoil.test import naca0012
 
 class Boat:
     def __init__(self, boatDict):
