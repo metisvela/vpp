@@ -66,11 +66,32 @@ class Foil:
         self.gamma2 = foilsDict["gamma2"]
         self.chord  = foilsDict["chord"]
         self.cL     = foilsDict["cL"]
+        self.cD     = foilsDict["cD"]
         return
 
     def foil_stability(self, Boat, Sea, boatSpeed):
-        foilRightingMoment = stabilita_foil(self, Boat, Sea, boatSpeed)
-        return foilRightingMoment
+        gm = stabilita_foil(self, Boat, Sea, boatSpeed)
+        
+        spanAvambraccioTheta = gm["strut span"]
+        braccioAvambraccioTheta = gm["strut lever"]
+        spanBraccioTheta = gm["tip span"]
+        braccioBraccioTheta = gm["tip lever"]
+        gamma1 = np.radians(self.gamma1) # angolo avambraccio
+        gamma2 = np.radians(self.gamma2) # angolo braccio
+        theta = np.radians(Boat.rollAngle)
+        corda = self.chord
+        pressioneDinamica = dynamic_pressure(Sea, boatSpeed)
+        cL = self.cL #lift_coefficients(angleOfAttack, aspectRatio)
+        
+        # calcolo forze e momento raddrizzante
+        forzaAvambraccio = pressioneDinamica * corda * spanAvambraccioTheta * cL *np.cos(gamma1) * np.cos(theta)
+        momentoAvambraccio = forzaAvambraccio * braccioAvambraccioTheta
+    
+        forzaBraccio = pressioneDinamica * corda * spanBraccioTheta * cL *np.cos(gamma2) * np.cos(theta)
+        momentoBraccio = forzaBraccio * braccioBraccioTheta
+    
+        momentoTotale = momentoAvambraccio + momentoBraccio
+        return momentoTotale
 
     def foil_lift(self):
         print("nothing coded yet")
@@ -80,9 +101,12 @@ class Foil:
         print("nothing coded yet")
         return
 
-    def foil_resistance(self):
-        print("nothing coded yet")
-        return
+    def foil_resistance(self, Boat, Sea, boatSpeed):
+        gm = stabilita_foil(self, Boat, Sea, boatSpeed)
+        foilImmersedArea = (gm["strut span"] + gm["tip span"]) * self.chord
+        dynPressure = dynamic_pressure(Sea, boatSpeed)
+        foilResistance = dynPressure * foilImmersedArea * self.cD
+        return foilResistance
 
 class Sea:
     def __init__(self, seaDict):

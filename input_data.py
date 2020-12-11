@@ -25,7 +25,8 @@ def input_data_dictionary():
     foilsDict = {"gamma1" : 30,
                  "gamma2" : 40,
                  "chord"  : 0.2,
-                 "cL"     : 0.8};
+                 "cL"     : 0.8,
+                 "cD"     : 0.1};
     crewsDict = {"Crew 1": {"bowmanWeight"   : 80,
                         "helmsmanWeight" : 60,
                         "bowmanHeight"   : 1.80,

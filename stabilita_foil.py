@@ -50,14 +50,14 @@ def stabilita_foil(Foil, Boat, Sea, boatSpeed):
     
         spanBraccioTheta = 0.5 # immersioneTheta / (np.sin(gamma2 - theta))
         braccioBraccioTheta = lunghezzaMassima * np.cos(gamma1) * np.sin(gamma1) * spanBraccioTheta/2
-    
-        # calcolo forze e momento raddrizzante
-        forzaAvambraccio = pressioneDinamica * corda * spanAvambraccioTheta * cL *np.cos(gamma1) * np.cos(theta)
-        momentoAvambraccio = forzaAvambraccio * braccioAvambraccioTheta
-    
-        forzaBraccio = pressioneDinamica * corda * spanBraccioTheta * cL *np.cos(gamma2) * np.cos(theta)
-        momentoBraccio = forzaBraccio * braccioBraccioTheta
-    
-        momentoTotale = momentoAvambraccio + momentoBraccio
+        
+        geometries = {"strut length" : lunghezzaMassima,
+                      "immersion"    : immersioneTheta,
+                      "strut span"   : spanAvambraccioTheta,
+                      "tip span"     : spanBraccioTheta,
+                      "strut lever"  : braccioAvambraccioTheta,
+                      "tip lever"    : braccioBraccioTheta,
+                      }
 
-    return momentoTotale
+
+    return geometries
