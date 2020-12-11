@@ -7,8 +7,7 @@ from stabilita_foil import stabilita_foil
 from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
-from xfoil import XFoil
-from xfoil.test import naca0012
+from utilities import lift_coefficients, dynamic_pressure
 
 class Boat:
     def __init__(self, boatDict):
@@ -99,24 +98,20 @@ class Keel:
         self.span            = span
         self.area            = self.meanChord * self.span
         self.aspectRatio     = self.span / self.meanChord
-        self.profile         = XFoil()
-        self.profile.airfoil = naca0012
+        self.profile         = None
 
         return
 
     def keel_lift(self, Boat, Sea, leewayAngle, boatSpeed):
-        cL2D = 0.1 # slope of the 2D lift profile
         effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
-        cL = cL2D / (1 + 2/self.aspectRatio) * effectiveLeewayAngle
-        lift = 0.5 * Sea.waterDensity * boatSpeed * self.area * cL
+        cL, _ = lift_coefficients(effectiveLeewayAngle, self.aspectRatio)
+        dynPressure = dynamic_pressure(Sea, boatSpeed)
+        lift = dynPressure * self.area * cL
         return lift
 
     def keel_resistance(self, Boat, Sea, leewayAngle, boatSpeed):
-        cL2D = 0.1 # slope of the 2D lift profile
         effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
-        cL = cL2D / (1 + 2/self.aspectRatio) * effectiveLeewayAngle
-        cDvisc = 0
-        cDind  = cL**2 / (np.pi * self.aspectRatio)
-        cD = cDvisc + cDind
-        keelResistance = 0.5 * Sea.waterDensity * boatSpeed * self.area * cD
+        _, cD = lift_coefficients(effectiveLeewayAngle, self.aspectRatio)
+        dynPressure = dynamic_pressure(Sea, boatSpeed)
+        keelResistance = dynPressure * self.area * cD
         return keelResistance
