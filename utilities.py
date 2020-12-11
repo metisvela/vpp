@@ -16,4 +16,4 @@ def lift_coefficients(angleOfAttack, aspectRatio):
     return cL, cDtot
 
 def dynamic_pressure(Sea, boatSpeed):
-    return 0.5 * Sea.waterDensity * boatSpeed
+    return 0.5 * Sea.waterDensity * boatSpeed**2
