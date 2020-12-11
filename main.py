@@ -4,7 +4,7 @@
 script per il calcolo del modello di stabilità  di tutta la barca
 (scafo+equipaggio+foil)
 """
-from boatClasses import Boat, Crew, Foil, Sea
+from boatClasses import Boat, Crew, Foil, Sea, Keel
 from interactive_plot import interactive_plot
 from input_data import input_data_dictionary
 import numpy as np
@@ -21,6 +21,9 @@ Crew = Crew(crewsDict["Crew 1"])
 
 # Inizializzo foil
 Foil = Foil(foilsDict)
+
+# Inizializzo deriva e timone
+Deriva = Keel(0.2,1.5)
 
 # Inizializzo mare
 Garda = Sea(seasDict["Garda"])
