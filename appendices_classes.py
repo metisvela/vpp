@@ -21,9 +21,9 @@ class Keel:
     def keel_lift(self, Boat, Sea, leewayAngle, boatSpeed):
         cL2D = np.pi**2 / 10 * leewayAngle # in degrees
         cL = cL2D / (1 + 2/self.aspectRatio) * leewayAngle
-        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(rollAngle))
+        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
         lift = 0.5 * Sea.waterDensity * boatSpeed * self.area * cL
-    return lift
+        return lift
 
     def keel_resistance(self, Boat, Sea, leewayAngle, boatSpeed):
         cL2D = np.pi**2 / 10 * leewayAngle # in degrees
@@ -31,6 +31,6 @@ class Keel:
         cDvisc = None
         cDind  = cL**2 / (np.pi * self.aspectRatio)
         cD = cDvisc + cDind
-        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(rollAngle))
+        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
         keelResistance = 0.5 * Sea.waterDensity * boatSpeed * self.area * cD
         return keelResistance 
