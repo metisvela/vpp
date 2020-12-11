@@ -94,10 +94,10 @@ class Sea:
 
 class Keel:
 
-    def __init__(self):
-        self.meanChord       = None
-        self.span            = None
-        self.area            = self.chord * self.span
+    def __init__(self,meanChord, span):
+        self.meanChord       = meanChord
+        self.span            = span
+        self.area            = self.meanChord * self.span
         self.aspectRatio     = self.span / self.meanChord
         self.profile         = XFoil()
         self.profile.airfoil = naca0012
@@ -105,18 +105,18 @@ class Keel:
         return
 
     def keel_lift(self, Boat, Sea, leewayAngle, boatSpeed):
-        cL2D = np.pi**2 / 10 * leewayAngle # in degrees
-        cL = cL2D / (1 + 2/self.aspectRatio) * leewayAngle
+        cL2D = 0.1 # slope of the 2D lift profile
         effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
+        cL = cL2D / (1 + 2/self.aspectRatio) * effectiveLeewayAngle
         lift = 0.5 * Sea.waterDensity * boatSpeed * self.area * cL
         return lift
 
     def keel_resistance(self, Boat, Sea, leewayAngle, boatSpeed):
-        cL2D = np.pi**2 / 10 * leewayAngle # in degrees
-        cL = cL2D / (1 + 2/self.aspectRatio) * leewayAngle
+        cL2D = 0.1 # slope of the 2D lift profile
+        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
+        cL = cL2D / (1 + 2/self.aspectRatio) * effectiveLeewayAngle
         cDvisc = 0
         cDind  = cL**2 / (np.pi * self.aspectRatio)
         cD = cDvisc + cDind
-        effectiveLeewayAngle = leewayAngle * np.cos(np.radians(Boat.rollAngle))
         keelResistance = 0.5 * Sea.waterDensity * boatSpeed * self.area * cD
         return keelResistance
