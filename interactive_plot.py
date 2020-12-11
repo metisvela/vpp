@@ -14,7 +14,8 @@ def interactive_plot(Boat, Foil, boatSpeed, Sea, Crew):
     hullRightMomLine, = ax[1].plot(boatSpeed, Boat.hull_stability(Sea, boatSpeed))
     crewRightMomLine, = ax[1].plot(boatSpeed, Crew.crew_stability(Boat, Sea, boatSpeed))
     totRightMomLine,  = ax[1].plot(boatSpeed, Foil.foil_stability(Boat, Sea, boatSpeed) + Boat.hull_stability(Sea, boatSpeed) + Crew.crew_stability(Boat, Sea, boatSpeed))
-    
+    ax_0_legend = ['Resistenza scafo']
+    ax_1_legend = ['Foil','Scafo', 'Equipaggio','Totale']
     
 
 
@@ -62,6 +63,8 @@ def interactive_plot(Boat, Foil, boatSpeed, Sea, Crew):
     ax[1].set_xlabel("Velocità (m/s)")
     ax[1].set_ylabel("Momento (Nm)")
     plt.subplots_adjust(left = 0.3)
+    ax[0].legend(ax_0_legend)
+    ax[1].legend(ax_1_legend)
     plt.show()
 
 
