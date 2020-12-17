@@ -55,8 +55,8 @@ class Crew:
         return
 
     def crew_stability(self, Boat, Sea, boatSpeed):
-        bowmRightMom = self.bowmanHeight / 2 * self.bowmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
-        helmRightMom = self.helmsmanHeight / 2 * self.helmsmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
+        bowmRightMom = (self.bowmanHeight / 2 + 1.05) * self.bowmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
+        helmRightMom = (self.helmsmanHeight / 2 + 1.05) * self.helmsmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
         crewRightMom = bowmRightMom + helmRightMom
         crewRightMom = crewRightMom * np.ones(shape=boatSpeed.size)
         return crewRightMom
