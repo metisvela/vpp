@@ -7,7 +7,7 @@ from stabilita_foil import stabilita_foil
 from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
-from utilities import lift_coefficients, dynamic_pressure
+from utilities import dynamic_pressure, lift_coefficients_2D, lift_coefficients_3D
 
 class Boat:
     def __init__(self, boatDict):
@@ -67,11 +67,12 @@ class Foil:
         self.chord  = foilsDict["chord"]
         self.cL     = foilsDict["cL"]
         self.cD     = foilsDict["cD"]
+        self.camber = 2 #gradi di camber
         return
 
     def foil_stability(self, Boat, Sea, boatSpeed):
         gm = stabilita_foil(self, Boat, Sea, boatSpeed)
-        
+
         spanAvambraccioTheta = gm["strut span"]
         braccioAvambraccioTheta = gm["strut lever"]
         spanBraccioTheta = gm["tip span"]
@@ -79,17 +80,26 @@ class Foil:
         gamma1 = np.radians(self.gamma1) # angolo avambraccio
         gamma2 = np.radians(self.gamma2) # angolo braccio
         theta = np.radians(Boat.rollAngle)
+
         corda = self.chord
+
+        aspectRatioTip = spanBraccioTheta / self.chord
+        aspectRatioStrut = spanAvambraccioTheta / self.chord
+        AoATip = self.camber * np.cos(np.radians(self.gamma2)) # in gradi, angolo effettivo della tip
+        AoAStrut = self.camber * np.cos(np.radians(self.gamma1)) # in gradi, angolo effettivo della strut
+        clStrut, cdStrut = lift_coefficients_2D(self, AoAStrut, boatSpeed, Sea)
+        clTip, cdTip = lift_coefficients_2D(self, AoAStrut, boatSpeed, Sea)
+        clStrut, cdStrut = lift_coefficients_3D(clStrut, cdStrut, aspectRatioStrut)
+        clTip, cdTip     = lift_coefficients_3D(clTip, cdTip, aspectRatioTip)
+
         pressioneDinamica = dynamic_pressure(Sea, boatSpeed)
-        cL = self.cL #lift_coefficients(angleOfAttack, aspectRatio)
-        
         # calcolo forze e momento raddrizzante
-        forzaAvambraccio = pressioneDinamica * corda * spanAvambraccioTheta * cL *np.cos(gamma1) * np.cos(theta)
+        forzaAvambraccio = pressioneDinamica * self.chord * spanAvambraccioTheta * clStrut * np.cos(theta)
         momentoAvambraccio = forzaAvambraccio * braccioAvambraccioTheta
-    
-        forzaBraccio = pressioneDinamica * corda * spanBraccioTheta * cL *np.cos(gamma2) * np.cos(theta)
+
+        forzaBraccio = pressioneDinamica * corda * spanBraccioTheta * clTip * np.cos(theta)
         momentoBraccio = forzaBraccio * braccioBraccioTheta
-    
+
         momentoTotale = momentoAvambraccio + momentoBraccio
         return momentoTotale
 
@@ -105,8 +115,23 @@ class Foil:
         gm = stabilita_foil(self, Boat, Sea, boatSpeed)
         foilImmersedArea = (gm["strut span"] + gm["tip span"]) * self.chord
         dynPressure = dynamic_pressure(Sea, boatSpeed)
-        foilResistance = dynPressure * foilImmersedArea * self.cD
-        return foilResistance
+        
+        tipSpan = gm["tip span"]
+        strutSpan = gm["strut span"]
+        areaTip = tipSpan * self.chord 
+        areaStrut = strutSpan * self.chord
+        aspectRatioTip = tipSpan / self.chord
+        aspectRatioStrut = strutSpan / self.chord
+        AoATip = self.camber * np.cos(np.radians(self.gamma2)) # in gradi, angolo effettivo della tip
+        AoAStrut = self.camber * np.cos(np.radians(self.gamma1)) # in gradi, angolo effettivo della strut
+        clStrut, cdStrut = lift_coefficients_2D(self, AoAStrut, boatSpeed, Sea)
+        clTip, cdTip = lift_coefficients_2D(self, AoAStrut, boatSpeed, Sea)
+        clStrut, cdStrut = lift_coefficients_3D(clStrut, cdStrut, aspectRatioStrut)
+        clTip, cdTip     = lift_coefficients_3D(clTip, cdTip, aspectRatioTip)
+        
+        strutResistance = dynPressure * areaStrut * cdStrut * np.cos(np.radians(Boat.rollAngle))
+        tipResistance = dynPressure * areaTip * cdTip * np.cos((np.radians(Boat.rollAngle)))
+        return strutResistance + tipResistance
 
 class Sea:
     def __init__(self, seaDict):
