@@ -29,7 +29,8 @@ Timone = Keel(0.13, 1)
 # Inizializzo mare
 Garda = Sea(seasDict["Garda"])
 
-boatSpeed = np.linspace(1,6,20) # metri al secondo
+boatSpeed = np.linspace(1,6,20).reshape((20, 1)) # metri al secondo
 rollAngle = 0 # in gradi
 
+#fResist = Foil.foil_resistance(Ate, Garda, boatSpeed)
 interactive_plot(Ate, Foil, boatSpeed, Garda, Crew)

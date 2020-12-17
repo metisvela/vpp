@@ -13,7 +13,7 @@ def interactive_plot(Boat, Foil, boatSpeed, Sea, Crew):
     stabFoilLine,     = ax[1].plot(boatSpeed, Foil.foil_stability(Boat, Sea, boatSpeed))
     hullRightMomLine, = ax[1].plot(boatSpeed, Boat.hull_stability(Sea, boatSpeed))
     crewRightMomLine, = ax[1].plot(boatSpeed, Crew.crew_stability(Boat, Sea, boatSpeed))
-    totRightMomLine,  = ax[1].plot(boatSpeed, Foil.foil_stability(Boat, Sea, boatSpeed) + Boat.hull_stability(Sea, boatSpeed) + Crew.crew_stability(Boat, Sea, boatSpeed))
+    totRightMomLine,  = ax[1].plot(boatSpeed, Foil.foil_stability(Boat, Sea, boatSpeed).flatten() + Boat.hull_stability(Sea, boatSpeed) + Crew.crew_stability(Boat, Sea, boatSpeed))
     foilResistLine,   = ax[0].plot(boatSpeed, Foil.foil_resistance(Boat, Sea, boatSpeed))
     ax_0_legend = ['Scafo','Foil']
     ax_1_legend = ['Foil','Scafo', 'Equipaggio','Totale']
@@ -75,11 +75,11 @@ def interactive_plot(Boat, Foil, boatSpeed, Sea, Crew):
             string = sliderDict[variable]["associated variable"]
             exec(string + "= slider.val")
         resistLine.set_ydata(Boat.hull_resistance(boatSpeed, Sea,))
-        stabFoilLine.set_ydata(Foil.foil_stability(Boat, Sea, boatSpeed))
+        stabFoilLine.set_ydata(Foil.foil_stability(Boat, Sea, boatSpeed).flatten())
         hullRightMomLine.set_ydata(Boat.hull_stability(Sea, boatSpeed))
         crewRightMomLine.set_ydata(Crew.crew_stability(Boat, Sea, boatSpeed))
-        totRightMomLine.set_ydata(Foil.foil_stability(Boat, Sea, boatSpeed) + Boat.hull_stability(Sea, boatSpeed) + Crew.crew_stability(Boat, Sea, boatSpeed))
-        foilResistLine.set_ydata(Foil.foil_resistance(Boat, Sea, boatSpeed))
+        totRightMomLine.set_ydata(Foil.foil_stability(Boat, Sea, boatSpeed).flatten() + Boat.hull_stability(Sea, boatSpeed) + Crew.crew_stability(Boat, Sea, boatSpeed))
+        foilResistLine.set_ydata(Foil.foil_resistance(Boat, Sea, boatSpeed).flatten())
         
         fig.canvas.blit(ax[0].bbox)
         fig.canvas.blit(ax[1].bbox)
