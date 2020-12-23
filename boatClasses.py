@@ -8,7 +8,8 @@ from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
 from utilities import dynamic_pressure, lift_coefficients_2D, lift_coefficients_3D, interpolate_wing_coefficients
-import xfoil 
+from foil_forces_calculation import forces_v_foil
+import xfoil
 
 class Boat:
     def __init__(self, boatDict):
@@ -68,7 +69,7 @@ class Foil:
         self.chord  = foilsDict["chord"]
         self.cL     = foilsDict["cL"]
         self.cD     = foilsDict["cD"]
-        self.camber = 2 #gradi di camber
+        self.camber = 2 #gradi di camber EFFETTIVO
         x = np.array([1.     , 0.99893, 0.99572, 0.99039, 0.98296, 0.97347, 0.96194,
                        0.94844, 0.93301, 0.91573, 0.89668, 0.87592, 0.85355, 0.82967,
                        0.80438, 0.77779, 0.75   , 0.72114, 0.69134, 0.66072, 0.62941,
@@ -111,6 +112,30 @@ class Foil:
         self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
         return
 
+    def foil_forces(self, Boat, Sea, boatSpeed):
+        # Recall the current geometries based on roll angle and foil characteristics
+        gm               = stabilita_foil(self, Boat, Sea, boatSpeed)
+        AoATip           = self.camber * np.cos(np.radians(self.gamma2)) # degrees, effective angle of the tip
+        AoAStrut         = self.camber * np.cos(np.radians(self.gamma1)) # degrees, effective angle of the strut
+        reynolds         = boatSpeed*self.chord / Sea.cinematicViscosity # np array storing all reynolds number
+        aspectRatioStrut = gm['strut span'] / self.chord
+        aspectRatioTip   = gm['tip span'] / self.chord
+
+        # Calculate the cl, cd for both strut and tip
+        liftCoeffStrut2D = self.liftFunction(AoAStrut, reynolds.flatten())
+        dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds.flatten())
+        liftCoeffTip2D   = self.liftFunction(AoATip  , reynolds.flatten())
+        dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
+
+        liftCoeffStrut3D, dragCoeffStrut3D = lift_coefficients_3D(liftCoeffStrut2D, dragCoeffStrut2D, aspectRatioStrut)
+        liftCoeffTip3D,   dragCoeffTip3D   = lift_coefficients_3D(liftCoeffTip2D,   dragCoeffTip2D,   aspectRatioTip)
+
+        dynPressure = dynamic_pressure(Sea, boatSpeed)
+
+        # Calculate foil forces:
+        rightMom, lift, drag, leeway = forces_v_foil(self, Boat, liftCoeffStrut3D, liftCoeffTip3D, dragCoeffStrut3D, dragCoeffTip3D, gm, dynPressure)
+        return rightMom, lift, drag, leeway
+
     def foil_stability(self, Boat, Sea, boatSpeed):
         gm = stabilita_foil(self, Boat, Sea, boatSpeed)
 
@@ -122,8 +147,6 @@ class Foil:
         gamma2 = np.radians(self.gamma2) # angolo braccio
         theta = np.radians(Boat.rollAngle)
 
-        corda = self.chord
-
         aspectRatioTip = spanBraccioTheta / self.chord
         aspectRatioStrut = spanAvambraccioTheta / self.chord
         AoATip = self.camber * np.cos(np.radians(self.gamma2)) # in gradi, angolo effettivo della tip
@@ -133,10 +156,10 @@ class Foil:
         liftCoeffStrut2D = self.liftFunction(AoAStrut, reynolds.flatten())
         dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds.flatten())
         liftCoeffTip2D   = self.liftFunction(AoATip  , reynolds.flatten())
-        drafCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
+        dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
 
         liftCoeffStrut3D, dragCoeffStrut3D = lift_coefficients_3D(liftCoeffStrut2D, dragCoeffStrut2D, aspectRatioStrut)
-        liftCoeffTip3D,   dragCoeffTip3D   = lift_coefficients_3D(liftCoeffTip2D,   drafCoeffTip2D,   aspectRatioTip)
+        liftCoeffTip3D,   dragCoeffTip3D   = lift_coefficients_3D(liftCoeffTip2D,   dragCoeffTip2D,   aspectRatioTip)
 
         pressioneDinamica = dynamic_pressure(Sea, boatSpeed)
         # calcolo forze e momento raddrizzante
@@ -176,10 +199,10 @@ class Foil:
 
         dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds.flatten())
 
-        drafCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
+        dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
 
         _, dragCoeffStrut3D   = lift_coefficients_3D(1, dragCoeffStrut2D, aspectRatioStrut)
-        _,   dragCoeffTip3D   = lift_coefficients_3D(1,   drafCoeffTip2D,   aspectRatioTip)
+        _,   dragCoeffTip3D   = lift_coefficients_3D(1,   dragCoeffTip2D,   aspectRatioTip)
 
         strutResistance = dynPressure * areaStrut * dragCoeffStrut3D * np.cos(np.radians(Boat.rollAngle))
         tipResistance = dynPressure * areaTip     * dragCoeffTip3D   * np.cos(np.radians(Boat.rollAngle))

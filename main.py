@@ -32,5 +32,6 @@ Garda = Sea(seasDict["Garda"])
 boatSpeed = np.linspace(1,6,20).reshape((20, 1)) # metri al secondo
 rollAngle = 0 # in gradi
 
-#fResist = Foil.foil_resistance(Ate, Garda, boatSpeed)
-interactive_plot(Ate, Foil, boatSpeed, Garda, Crew)
+
+rightMom, lift, drag, leeway = Foil.foil_forces(Ate, Garda, boatSpeed)
+#interactive_plot(Ate, Foil, boatSpeed, Garda, Crew)
