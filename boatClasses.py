@@ -3,7 +3,7 @@ classe per la raccolta dei dati di una barca e delle sue funzioni
 di resistenza e stabilità
 """
 from hull_resistances import residuary_resistance, frictional_resistance, added_residuary_res
-from stabilita_foil import stabilita_foil
+from foil_geometry import geometry_v_foil
 from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
@@ -114,7 +114,7 @@ class Foil:
 
     def foil_forces(self, Boat, Sea, boatSpeed):
         # Recall the current geometries based on roll angle and foil characteristics
-        gm               = stabilita_foil(self, Boat, Sea, boatSpeed)
+        gm               = geometry_v_foil(self, Boat, Sea, boatSpeed)
         AoATip           = self.camber * np.cos(np.radians(self.gamma2)) # degrees, effective angle of the tip
         AoAStrut         = self.camber * np.cos(np.radians(self.gamma1)) # degrees, effective angle of the strut
         reynolds         = boatSpeed*self.chord / Sea.cinematicViscosity # np array storing all reynolds number
