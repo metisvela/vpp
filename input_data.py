@@ -50,4 +50,4 @@ def input_data_dictionary(Boat):
                             }
                 }
 
-    return boatsDict, foilsDict, crewsDict, seasDict
+    return boatsDict, foilsDict, crewsDict, seasDict, sailsDict
