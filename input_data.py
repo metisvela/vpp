@@ -3,7 +3,7 @@ utilizzare questa pagina per inserire i dati che verranno utilizzati
 dal programma.
 """
 
-def input_data_dictionary():
+def input_data_dictionary(Boat):
     boatsDict = {"Ate": {"lengthWaterl" : 4.6,
                      "beamWaterl" : 1.064,
                      "canoeDraft" : 0.13,
@@ -35,4 +35,19 @@ def input_data_dictionary():
     seasDict = {"Garda" : {"waterDensity"       : 1000,
                            "cinematicViscosity" : 1e-06,
                            "gravityConstant"    : 9.8}}
+
+    sailsDict = {'Set 1' : {'EHM' : 7,           # Mast height from freeboard
+                            'FA'  : 0.3,         # freeboard mean height
+                            'BMAX': 1.2,         # max width of the yacht
+                            'EMDC' : 0.12,       # Mean diameter of mast
+                            'BAD' : 0.8,         # Boma height from freeboard
+                            'H'   : 1,           # Cl correction factor
+                            'F'   : 1,           # sail correction factor
+                            'Am'  : 10.93,       # main sail area
+                            'Aj'  : 4.93,        # jib area
+                            'Ag'  : 17.95,       # gennaker area
+                            'genAngle': 70       # AWA at which gennaker is hoisted
+                            }
+                }
+
     return boatsDict, foilsDict, crewsDict, seasDict
