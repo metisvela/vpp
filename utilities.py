@@ -46,7 +46,7 @@ def dynamic_pressure(Sea, boatSpeed):
 
 def interpolate_wing_coefficients(xf):
     Re = np.arange(1e4, 1e7, 1e6)
-    alfa = np.arange(0, 5, 1)
+    alfa = np.arange(0, 10, 1)
     clalfa = []
     clre = []
     cdalfa = []
@@ -65,11 +65,20 @@ def interpolate_wing_coefficients(xf):
 
     x = alfa
     y = Re
-    zlift = clre
-    zdrag = cdre
+    zlift = np.array(clre)
+    zdrag = np.array(cdre)
     # Togli i nan values dalle liste che mi sfanculano l'interpolazione
-    zlift = np.nan_to_num(zlift)
-    zdrag = np.nan_to_num(zdrag)
+    #zlift = np.nan_to_num(zlift)
+    #zdrag = np.nan_to_num(zdrag)
+    # Fill in NaN's...
+    mask = np.isnan(zlift)
+    zlift[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zlift[~mask])
+    mask = np.isnan(zdrag)
+    zdrag[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zdrag[~mask])   
+    
     clFunction = interp2d(x,y,zlift)
     cdFunction = interp2d(x,y,zdrag)
+    
+    import matplotlib.pyplot as plt
+    plt.plot(alfa, clFunction(1e4,alfa))
     return clFunction, cdFunction

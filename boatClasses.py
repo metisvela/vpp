@@ -23,6 +23,7 @@ class Boat:
         self.longCentBuoy = boatDict["longCentBuoy"]
         self.longCentFlot = boatDict["longCentFlot"]
         self.wettedArea = boatDict["wettedArea"]
+        self.leewayAngle = 0
         self.foilBeam = boatDict["foilBeam"] # distanza fra la metà barca e il punto di uscita del foil
         self.foilHeight = boatDict["foilHeight"]# altezza del punto di uscita del foil rispetto al fondo barca
         self.freeboard = boatDict["freeboard"] # altezza del bordo libero rispetto alla DWL
@@ -60,7 +61,7 @@ class Crew:
         bowmRightMom = (self.bowmanHeight / 2 + 1.05) * self.bowmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
         helmRightMom = (self.helmsmanHeight / 2 + 1.05) * self.helmsmanWeight * Sea.gravityConstant * np.cos(np.radians(Boat.rollAngle))
         crewRightMom = bowmRightMom + helmRightMom
-        crewRightMom = crewRightMom * np.ones(shape=boatSpeed.size)
+        # crewRightMom = crewRightMom * np.ones(shape=boatSpeed.size)
         return crewRightMom
 
 class Foil:
@@ -107,8 +108,9 @@ class Foil:
         profilo = xfoil.model.Airfoil(x,y)
         self.xf = xfoil.XFoil()
         self.xf.airfoil = profilo
-        self.xf.n_crit = 3
+        self.xf.n_crit = 9
         self.xf.repanel()
+        self.xf.max_iter=150
 
         self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
         return
@@ -123,11 +125,16 @@ class Foil:
         aspectRatioTip   = gm['tip span'] / self.chord
 
         # Calculate the cl, cd for both strut and tip
-        liftCoeffStrut2D = self.liftFunction(AoAStrut, reynolds.flatten())
-        dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds.flatten())
-        liftCoeffTip2D   = self.liftFunction(AoATip  , reynolds.flatten())
-        dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
-
+        try:
+            liftCoeffStrut2D = self.liftFunction(AoAStrut, reynolds.flatten())
+            dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds.flatten())
+            liftCoeffTip2D   = self.liftFunction(AoATip  , reynolds.flatten())
+            dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds.flatten())
+        except AttributeError:
+            liftCoeffStrut2D = self.liftFunction(AoAStrut, reynolds)
+            dragCoeffStrut2D = self.dragFunction(AoAStrut, reynolds)
+            liftCoeffTip2D   = self.liftFunction(AoATip  , reynolds)
+            dragCoeffTip2D   = self.dragFunction(AoATip  , reynolds)
         liftCoeffStrut3D, dragCoeffStrut3D = lift_coefficients_3D(liftCoeffStrut2D, dragCoeffStrut2D, aspectRatioStrut)
         liftCoeffTip3D,   dragCoeffTip3D   = lift_coefficients_3D(liftCoeffTip2D,   dragCoeffTip2D,   aspectRatioTip)
 
@@ -140,34 +147,75 @@ class Foil:
 class Sea:
     def __init__(self, seaDict):
         self.waterDensity = seaDict["waterDensity"]
+        self.airDensity   = seaDict["airDensity"]
         self.cinematicViscosity = seaDict["cinematicViscosity"]
         self.gravityConstant = seaDict["gravityConstant"]
         return
 
 class Keel:
 
-    def __init__(self,meanChord, span):
-        self.meanChord       = meanChord
+    def __init__(self,chord, span):
+        self.chord           = chord
         self.span            = span
-        self.area            = self.meanChord * self.span
-        self.aspectRatio     = self.span / self.meanChord
+        self.area            = self.chord * self.span
+        self.aspectRatio     = self.span / self.chord
         self.profile         = None
+        
+        # NACA 0021
+        x = np.array([1.0,0.95,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.25,0.2,0.15,0.1,0.075,0.05,0.025,0.0125,
+                       0.0,0.0125,0.025,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,1.0])
+        
+        y = np.array([0.00221,0.01412,0.02534,0.04591,0.06412,0.07986,0.09265,0.10156,0.10504,0.10397,0.1004,
+                      0.09354,0.08195,0.0735,0.06221,0.04576,0.03315,0.0,-0.03315,-0.04576,-0.06221,-0.0735,
+                      -0.08195,-0.09354,-0.1004,-0.10397,-0.10504,-0.10156,-0.09265,-0.07986,-0.06412,-0.04591,
+                      -0.02534,-0.01412])
+        
+        profilo = xfoil.model.Airfoil(x,y)
+        self.xf = xfoil.XFoil()
+        self.xf.airfoil = profilo
+        self.xf.n_crit = 9
+        self.xf.repanel()
+        self.xf.max_iter=100
+        self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
 
         return
 
-    def keel_lift(self, Boat, Sea, angleOfAttack, boatSpeed):
-        effectiveAoA = angleOfAttack * np.cos(np.radians(Boat.rollAngle))
-        cL, _ = lift_coefficients(effectiveAoA, self.aspectRatio)
+    def keel_forces(self, Boat, Sea, boatSpeed):
+        AoA = Boat.leewayAngle * np.cos(np.radians(Boat.rollAngle)) # effective angle
+        reynolds  = boatSpeed*self.chord / Sea.cinematicViscosity # np array storing all reynolds number
+        aspectRatio = self.aspectRatio*2 # specular effect of the keel
+        try:
+            liftCoeff2D = self.liftFunction(AoA, reynolds.flatten())
+            dragCoeff2D = self.dragFunction(AoA, reynolds.flatten())
+        except AttributeError:
+            liftCoeff2D = self.liftFunction(AoA, reynolds)
+            dragCoeff2D = self.dragFunction(AoA, reynolds)
+        liftCoeff3D, dragCoeff3D = lift_coefficients_3D(liftCoeff2D, dragCoeff2D, aspectRatio)
         dynPressure = dynamic_pressure(Sea, boatSpeed)
-        lift = dynPressure * self.area * cL
-        return lift
 
-    def keel_resistance(self, Boat, Sea, angleOfAttack, boatSpeed):
-        effectiveAoA = angleOfAttack * np.cos(np.radians(Boat.rollAngle))
-        _, cD = lift_coefficients(effectiveAoA, self.aspectRatio)
-        dynPressure = dynamic_pressure(Sea, boatSpeed)
-        keelResistance = dynPressure * self.area * cD
-        return keelResistance
+        lift = (dynPressure * 2*self.area * liftCoeff3D ) / 2
+        drag = (dynPressure * 2*self.area * dragCoeff3D ) / 2
+
+        # Now compute the forces in the boat frame of reference
+        leewayLift = lift * np.cos(np.radians(Boat.rollAngle)) # keel force counteracting leeway
+        upwdLift   = lift * np.sin(np.radians(Boat.rollAngle)) # vertical component of keel force
+
+        # Calculate coordinates of the center of lateral resistance
+        xCLR, zCLR = self.boat_CLR(Boat)
+        keelMoment = lift * zCLR
+        return leewayLift, upwdLift, keelMoment, drag
+
+    def boat_CLR(self, Boat):
+        """
+        Calculation of the center of lateral resistance is based on the theory
+        presented by Larsson in Principle of Yacht Design (2000) which is valid
+        for high aspect ratio fin-keel yachts.
+        """
+        zCLR = 0.45*(Boat.canoeDraft + self.span)
+        # xCLR = 0.25 of the chord, but a consistent coordinate system must be
+        # first established. For now, let's say
+        xCLR = 0
+        return xCLR, zCLR
 
 class Sails:
     def __init__(self, sailsDict):
@@ -181,15 +229,19 @@ class Sails:
         self.Am   = sailsDict['Am']
         self.Aj   = sailsDict['Aj']
         self.Ag   = sailsDict['Ag']
-        self.genAngle = sailsDict['genAngle']
+        self.genAngle = sailsDict['genAngle'] # fix AWA at which gennaker is hoisted
+        self.zMain = sailsDict['zMain']
+        self.xMain = sailsDict['xMain']
+        self.xJib  = sailsDict['xJib']
+        self.zJib = sailsDict['zJib']
         self.An   = self.Am + self.Aj # upwind sail area
         return
 
-    def sails_coefficients(self, AWA):
+    def sails_coefficients(self, AWA, Boat):
         """
         Utilizes Hazen model to interpolate cL and cD values provided by ORC
         VPP.
-        
+
         Input:
         AWA : apparent wind angle
 
@@ -248,6 +300,9 @@ class Sails:
         C_Lg =	interp1d(BetaG, C_LG) # lift function gennaker
         C_Dg =	interp1d(BetaG, C_DG) # drag function gennaker
 
+        # Compute the effective AWA keeping in mind the roll angle of the boat
+        AWA = AWA*np.cos(np.radians(Boat.rollAngle))
+
         # Compute lift and drag coefficients for datum AWA
         liftCoeff = (C_Lm(AWA)*self.Am + C_Lj(AWA)*self.Aj + C_Lg(AWA)*self.Ag) * self.F * 1/self.An
             # viscous drag
@@ -272,3 +327,45 @@ class Sails:
         capCoeff = liftCoeff*np.cos(AWA) + dragCoeff*np.sin(AWA) # capsizing coefficient
         advCoeff = liftCoeff*np.sin(AWA) - dragCoeff*np.cos(AWA) # forward movement coefficient
         return advCoeff, capCoeff
+
+    def velocity_triangle(self, AWA, BS, TWS):
+        """
+        Compute the wind triangle starting from apparent wind speed and
+        boat speed
+        """
+        AWA = np.radians(AWA) # +leewayAngle
+        h = BS*np.sin(AWA)
+        delta = np.arcsin(h/TWS)
+        phi = np.pi - AWA - delta
+        TWA = np.pi - phi
+        AWS = BS * np.cos(AWA) + TWS*np.cos(delta)
+        TWA = np.degrees(TWA)
+        return TWA, AWS
+
+    def sail_CE(self):
+        """
+        Find COE coordinates based on sail geometries. The method is based on the
+        one proposed by Larsson (2000).
+        """
+        l = np.sqrt((self.xMain-self.xJib)**2 + (self.zMain - self.zJib)**2)
+        a = 1 / (self.Am/self.Aj + 1)
+
+        xCE = self.xMain - a/l * (self.xMain-self.xJib)
+        zCE = self.zMain - a/l * (self.zMain - self.zJib)
+        return xCE, zCE
+
+    def sail_forces(self, Boat, Sea, boatSpeed, TWS, AWA):
+        advCoeff, capCoeff = self.sails_coefficients(AWA, Boat)
+        TWA, AWS = self.velocity_triangle(AWA, boatSpeed, TWS)
+
+        Ft = .5 * Sea.airDensity * AWS**2 * self.An * advCoeff
+        Fh = .5 * Sea.airDensity * AWS**2 * self.An * capCoeff
+
+        # Correct for the leeway angle
+        Fadvance = Ft*np.cos(np.radians(Boat.leewayAngle)) + Fh*np.sin(np.radians(Boat.leewayAngle))
+        Fcapsize = Fh*np.cos(np.radians(Boat.leewayAngle)) - Ft*np.sin(np.radians(Boat.leewayAngle))
+
+        # Calculate capsize moment of sails
+        _, zCE = self.sail_CE()
+        capMoment = Fcapsize * zCE
+        return capMoment, Fadvance, Fcapsize
