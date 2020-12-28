@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from vpp import vpp
 
-import time 
+import time
 
 # Dizionario per lo storage dei dati dei vari scafi. Forse è più semplice salvare
 # i dati in un excel e usare pandas per importarli
-boatsDict, foilsDict, crewsDict, seasDict, sailsDict, wingProfiles = input_data_dictionary()
+boatsDict, foilsDict, crewsDict, seasDict, \
+    sailsDict, keelsDict, wingProfiles = input_data_dictionary()
 
 # Inizializzo le barche
 Ate = Boat(boatsDict["Ate"])#inserisco tutti i dati in qualche modo
@@ -30,8 +31,8 @@ Crew = Crew(crewsDict["Crew 1"])
 Foil = Foil(foilsDict, wingProfiles)
 
 # Inizializzo deriva e timone
-Deriva1 = Keel(0.3,1.5)
-Deriva2 = Keel(0.15,2.5)
+Deriva1 = Keel(keelsDict['Keel1'], wingProfiles)
+Deriva2 = Keel(keelsDict['Keel1'], wingProfiles)
 #Timone = Keel(0.13, 1)
 
 # Inizializzo mare
@@ -44,7 +45,7 @@ startTime = time.time()
 
 BS, TWA, delta1, roll1 = vpp(Ate, Olimpics_1, Crew, Foil, Deriva1, Garda)
 
-executionTime = (time.time() - startTime) 
+executionTime = (time.time() - startTime)
 print(executionTime)
 
 plt.polar(np.radians(TWA), BS)
