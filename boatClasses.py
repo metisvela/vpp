@@ -69,8 +69,6 @@ class Foil:
         self.gamma1 = foilsDict["gamma1"]
         self.gamma2 = foilsDict["gamma2"]
         self.chord  = foilsDict["chord"]
-        self.cL     = foilsDict["cL"]
-        self.cD     = foilsDict["cD"]
         self.camber = 0.5 #gradi di camber EFFETTIVO
         x = np.array([1.     , 0.99893, 0.99572, 0.99039, 0.98296, 0.97347, 0.96194,
                        0.94844, 0.93301, 0.91573, 0.89668, 0.87592, 0.85355, 0.82967,
@@ -160,16 +158,16 @@ class Keel:
         self.area            = self.chord * self.span
         self.aspectRatio     = self.span / self.chord
         self.profile         = None
-        
+
         # NACA 0021
         x = np.array([1.0,0.95,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.25,0.2,0.15,0.1,0.075,0.05,0.025,0.0125,
                        0.0,0.0125,0.025,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,1.0])
-        
+
         y = np.array([0.00221,0.01412,0.02534,0.04591,0.06412,0.07986,0.09265,0.10156,0.10504,0.10397,0.1004,
                       0.09354,0.08195,0.0735,0.06221,0.04576,0.03315,0.0,-0.03315,-0.04576,-0.06221,-0.0735,
                       -0.08195,-0.09354,-0.1004,-0.10397,-0.10504,-0.10156,-0.09265,-0.07986,-0.06412,-0.04591,
                       -0.02534,-0.01412])
-        
+
         profilo = xfoil.model.Airfoil(x,y)
         self.xf = xfoil.XFoil()
         self.xf.airfoil = profilo

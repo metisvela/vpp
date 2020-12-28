@@ -24,13 +24,12 @@ def input_data_dictionary():
              }
     foilsDict = {"gamma1" : 30,
                  "gamma2" : 40,
-                 "chord"  : 0.2,
-                 "cL"     : 0.8,
-                 "cD"     : 0.1};
+                 "chord"  : 0.2
+                 }
     crewsDict = {"Crew 1": {"bowmanWeight"   : 80,
                         "helmsmanWeight" : 60,
                         "bowmanHeight"   : 1.80,
-                        "helmsmanHeight" : 1.65}};
+                        "helmsmanHeight" : 1.65}}
 
     seasDict = {"Garda" : {"waterDensity"       : 1000,
                            "cinematicViscosity" : 1e-06,
@@ -51,7 +50,7 @@ def input_data_dictionary():
                             'xMain': 2.3,         # centre of main sail, x coord
                             'zMain': 3,          # centre of main sail, z coord
                             'xJib' : 2,          # centre of jib, x coord
-                            'zJib' : 1.2         # centre of jib, z coord 
+                            'zJib' : 1.2         # centre of jib, z coord
                             }
                 }
 
