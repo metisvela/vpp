@@ -26,7 +26,7 @@ def interpolate_wing_coefficients(xf):
     by the scipy package.
     """
     # Please BE AWARE that the interval of reynolds number and angles of attack,
-    # as well as the interval steps have been carefully selected to guarantee
+    # as well as the interval's steps, have been carefully selected to guarantee
     # accurate results for the minimum run time.
     # Don't change this arrays if you don't know what you're doing!
     Re = np.linspace(2e4, 1e6, 10) # list of reynolds number that the interpolating
