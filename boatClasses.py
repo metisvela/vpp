@@ -317,17 +317,22 @@ class Sails:
 
     def sail_CE(self):
         """
-        Find COE coordinates based on sail geometries. The method is based on the
+        Find CE (center of effort) coordinates based on sail geometries. The method is based on the
         one proposed by Larsson (2000).
         """
+        # Distance between the main CE and the jib CE:
         l = np.sqrt((self.xMain-self.xJib)**2 + (self.zMain - self.zJib)**2)
+        # Distance between the main CE and the total CE:
         a = 1 / (self.Am/self.Aj + 1)
 
-        xCE = self.xMain - a/l * (self.xMain-self.xJib)
-        zCE = self.zMain - a/l * (self.zMain - self.zJib)
+        xCE = self.xMain - a/l * (self.xMain-self.xJib) # x coordinate of total CE
+        zCE = self.zMain - a/l * (self.zMain - self.zJib) # y coordinate of total CE
         return xCE, zCE
 
     def sail_forces(self, Boat, Sea, boatSpeed, TWS, AWA):
+        """
+        Compute forces exerted by sails
+        """
         advCoeff, capCoeff = self.sails_coefficients(AWA, Boat)
         TWA, AWS = self.velocity_triangle(AWA, boatSpeed, TWS)
 
