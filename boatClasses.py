@@ -71,7 +71,7 @@ class Foil:
         self.chord  = foilsDict["chord"]
         self.cL     = foilsDict["cL"]
         self.cD     = foilsDict["cD"]
-        self.camber = 2 #gradi di camber EFFETTIVO
+        self.camber = 0.5 #gradi di camber EFFETTIVO
         x = np.array([1.     , 0.99893, 0.99572, 0.99039, 0.98296, 0.97347, 0.96194,
                        0.94844, 0.93301, 0.91573, 0.89668, 0.87592, 0.85355, 0.82967,
                        0.80438, 0.77779, 0.75   , 0.72114, 0.69134, 0.66072, 0.62941,
@@ -108,9 +108,9 @@ class Foil:
         profilo = xfoil.model.Airfoil(x,y)
         self.xf = xfoil.XFoil()
         self.xf.airfoil = profilo
-        self.xf.n_crit = 9
+        self.xf.n_crit = 3
         self.xf.repanel()
-        self.xf.max_iter=150
+        self.xf.max_iter=50
 
         self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
         return
@@ -173,9 +173,9 @@ class Keel:
         profilo = xfoil.model.Airfoil(x,y)
         self.xf = xfoil.XFoil()
         self.xf.airfoil = profilo
-        self.xf.n_crit = 9
+        self.xf.n_crit = 3
         self.xf.repanel()
-        self.xf.max_iter=100
+        self.xf.max_iter=50
         self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
 
         return
