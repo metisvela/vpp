@@ -5,65 +5,90 @@ dal programma.
 import numpy as np
 
 def input_data_dictionary():
-    boatsDict = {"Ate": {"lengthWaterl" : 4.6,
-                     "beamWaterl" : 1.064,
-                     "canoeDraft" : 0.13,
-                     "midshipCoeff" : 0.727,
-                     "displacement" : 255*0.001, #m^3
-                     "prismCoeff" : 0.607,
-                     "longCentBuoy" : (0.2655+2.3),
-                     "longCentFlot" : (0.4716+2.3),
-                     "wettedArea" : 3.706,
-                     "foilBeam" : 0.5,
-                     "freeboard" : 0.3,
-                     "foilHeight" : 0.5
-                     },
-             "Athena": {},
-             "Arete": {},
-             "Aura": {},
-             "A2020": {}
+    # Dictionary storing yacht information
+    boatsDict = {"Ate"    :    {"lengthWaterl" : 4.6,          # length of the waterline [m]
+                                "beamWaterl" : 1.064,          # maximum beam of waterline [m]
+                                "canoeDraft" : 0.13,           # maximum draft of canoe body [m]
+                                "midshipCoeff" : 0.727,        # coefficient of midship [adim]
+                                "displacement" : 255*0.001,    # displacement [m^3]
+                                "prismCoeff" : 0.607,          # prismatic coefficient [adim]
+                                "longCentBuoy" : (0.2655+2.3), # longitudinal centre of buoyancy,
+                                                               # 0 at the forward perpendicular [m]
+                                "longCentFlot" : (0.4716+2.3), # longitudinal centre of flotation,
+                                                               # 0 at the forward perpendicular [m]
+                                "wettedArea" : 3.706,          # wetted area of canoe body [m^2]
+                                "foilBeam" : 0.5,              # distance of the exit point of the foils,
+                                                               # from midship [m]
+                                "freeboard" : 0.3,             # freeboard height [m]
+                                "foilHeight" : 0.5             # height of the exit point of the foil from LWL [m]
+                               },
+             "Athena"     :    {},
+             "Arete"      :    {},
+             "Aura"       :    {},
+             "A2020"      :    {}
              }
+
+
+    # Dictionary storing foil configurations
     foilsDict = {"gamma1" : 30,
                  "gamma2" : 40,
                  "chord"  : 0.2,
                  "keying" : 2,
                  "profile" : 'wortmann'
                  }
-    crewsDict = {"Crew 1": {"bowmanWeight"   : 80,
-                        "helmsmanWeight" : 60,
-                        "bowmanHeight"   : 1.80,
-                        "helmsmanHeight" : 1.65}}
 
-    seasDict = {"Garda" : {"waterDensity"       : 1000,
-                           "cinematicViscosity" : 1e-06,
-                           "gravityConstant"    : 9.8,
-                           "airDensity"         : 1}}
+    # Dictionary storing possible crews information
+    crewsDict = {"Crew 1"  : {"bowmanWeight"   : 80,     # [kg]
+                              "helmsmanWeight" : 60,     # [kg]
+                              "bowmanHeight"   : 1.80,   # [m]
+                              "helmsmanHeight" : 1.65}}  # [m]
 
-    sailsDict = {'Set 1' : {'EHM' : 7,           # Mast height from freeboard
-                            'FA'  : 0.3,         # freeboard mean height
-                            'BMAX': 1.2,         # max width of the yacht
-                            'EMDC' : 0.12,       # Mean diameter of mast
-                            'BAD' : 0.8,         # Boma height from freeboard
-                            'H'   : 1,           # Cl correction factor
-                            'F'   : 1,           # sail correction factor
-                            'Am'  : 10.93,       # main sail area
-                            'Aj'  : 4.93,        # jib area
-                            'Ag'  : 17.95,       # gennaker area
-                            'genAngle': 50,       # AWA at which gennaker is hoisted
-                            'xMain': 2.3,         # centre of main sail, x coord
-                            'zMain': 3,          # centre of main sail, z coord
-                            'xJib' : 2,          # centre of jib, x coord
-                            'zJib' : 1.2         # centre of jib, z coord
+    # Dictionary storing information about the regatta course
+    seasDict = {"Garda" : {"waterDensity"       : 1000,  # [kg/m^3]
+                           "cinematicViscosity" : 1e-06, # [m^2/s]
+                           "gravityConstant"    : 9.8,   # [m/s^2]
+                           "airDensity"         : 1      # [kg/m^3]
+                           }
+                }
+
+    # Dictionary storing information about sail sets. The parameters are derived
+    # from the ORC sail model, which uses a corrected Hazen model.
+    sailsDict = {'Set 1' : {'EHM' : 7,           # Mast height from freeboard [m]
+                            'FA'  : 0.3,         # freeboard mean height [m]
+                            'BMAX': 1.2,         # max width of the yacht [m]
+                            'EMDC' : 0.12,       # Mean diameter of mast [m]
+                            'BAD' : 0.8,         # Boma height from freeboard [m]
+                            'H'   : 1,           # Cl correction factor [adim]
+                            'F'   : 1,           # sail correction factor [adim]
+                            'Am'  : 10.93,       # main sail area [m^2]
+                            'Aj'  : 4.93,        # jib area [m^2]
+                            'Ag'  : 17.95,       # gennaker area [m^2]
+                            'genAngle': 50,      # AWA at which gennaker is hoisted [°]
+                            'xMain': 2.3,        # centre of main sail, x coord [m]
+                            'zMain': 3,          # centre of main sail, z coord [m]
+                            'xJib' : 2,          # centre of jib, x coord [m]
+                            'zJib' : 1.2         # centre of jib, z coord [m]
                             }
                 }
-    keelsDict = {'Keel1' : {'profile' : 'naca0021',
-                            'chord'   : '0.3',
-                            'span'    : '1.5',
+
+    # Dictionary storing information about the centreboards. Be aware that the
+    # model provided in this code always assumes that the distribution of lift is
+    # elliptic, and so a "quarter-chord-aligned" type of centreboard or rudder
+    # is going to be designed.
+    keelsDict = {'Keel1' : {'profile' : 'naca0021',              # naca profile
+                            'chord'   : '0.3',                   # mean chord [m]
+                            'span'    : '1.5',                   # span [m]
                             },
                 }
 
 
 
+    # Dictionary storing the x and y coordinates of possible profiles to be used
+    # in the code. Note that the frame of reference starts from x=1 at the
+    # leading edge and runs over the upper part of the profile, for it to then come
+    # back once passed the trailing edge through the lower part.
+    # Tip: for easier implementation of profile coordinates, start from the
+    # Selig file format which already follows this convention.
     wingProfiles = {'wortmann' :
 
                                         {'x' : np.array([1.     , 0.99893, 0.99572, 0.99039, 0.98296, 0.97347, 0.96194,

@@ -14,6 +14,8 @@ import xfoil
 
 class Boat:
     def __init__(self, boatDict):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.lengthWaterl = boatDict["lengthWaterl"]
         self.beamWaterl = boatDict["beamWaterl"]
         self.canoeDraft = boatDict["canoeDraft"]
@@ -50,6 +52,8 @@ class Boat:
 
 class Crew:
     def __init__(self, crewDict):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.bowmanWeight = crewDict["bowmanWeight"]
         self.helmsmanWeight = crewDict["helmsmanWeight"]
         self.bowmanHeight   = crewDict["bowmanHeight"]
@@ -66,6 +70,8 @@ class Crew:
 
 class Foil:
     def __init__(self, foilsDict, wingProfiles):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.gamma1 = foilsDict["gamma1"]
         self.gamma2 = foilsDict["gamma2"]
         self.chord  = foilsDict["chord"]
@@ -73,13 +79,14 @@ class Foil:
         self.profile = foilsDict['profile']
         self.xCoord = wingProfiles[self.profile]['x']
         self.yCoord = wingProfiles[self.profile]['y']
+
+        # Init and precompute xfoil profiles, lift and drag coefficients
         profilo = xfoil.model.Airfoil(self.xCoord, self.yCoord)
         self.xf = xfoil.XFoil()
         self.xf.airfoil = profilo
         self.xf.n_crit = 3
         self.xf.repanel()
         self.xf.max_iter=50
-
         self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
         return
 
@@ -114,6 +121,8 @@ class Foil:
 
 class Sea:
     def __init__(self, seaDict):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.waterDensity = seaDict["waterDensity"]
         self.airDensity   = seaDict["airDensity"]
         self.cinematicViscosity = seaDict["cinematicViscosity"]
@@ -123,6 +132,8 @@ class Sea:
 class Keel:
 
     def __init__(self,keelDict, wingProfiles):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.chord           = keelDict['chord']
         self.span            = keelDict['span']
         self.area            = self.chord * self.span
@@ -179,6 +190,8 @@ class Keel:
 
 class Sails:
     def __init__(self, sailsDict):
+        # See the corresponding dictionary on input_data.py for information
+        # on this parameters.
         self.EHM = sailsDict['EHM']
         self.EMDC = sailsDict['EMDC']
         self.BAD = sailsDict['BAD']
