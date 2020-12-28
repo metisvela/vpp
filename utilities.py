@@ -6,34 +6,6 @@ import xfoil
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 
-def lift_coefficients_2D(Foil, angleOfAttack, boatSpeed, Sea):
-    """
-    Il modo per usare xfoil è il seguente:
-    - Salvo le coordinate del profilo in due vettori numpy x,y
-    - profilo = xfoil.model.Airfoil(x,y)
-    - xf = xfoil.XFoil()
-    - xf.airfoil = profilo
-    - xf.repanel()
-    - xf.Re = xxx
-    - xf.n_crit = 3
-    - cl, cd, cm, cp = xf.a()
-    """
-    # calcolo del coefficiente di lift e drag 2D:
-    cllist = []
-    cdlist = []
-    wortmann = xfoil.model.Airfoil(x,y)
-    xf = xfoil.XFoil()
-    xf.airfoil = wortmann
-    xf.repanel()
-    for v in boatSpeed:
-        xf.Re = v * Foil.chord / Sea.cinematicViscosity
-        xf.n_crit = 3
-        xf.max_iter = 40
-        cl, cd, _, __ = xf.a(angleOfAttack)
-        cllist.append(cl)
-        cdlist.append(cd)
-    return np.array(cllist), np.array(cdlist)
-
 def lift_coefficients_3D(cl, cd, aspectRatio):
     cl3D = cl / (1 + 2 / aspectRatio)
 
@@ -45,17 +17,34 @@ def dynamic_pressure(Sea, boatSpeed):
     return 0.5 * Sea.waterDensity * boatSpeed**2
 
 def interpolate_wing_coefficients(xf):
-    Re = np.linspace(2e4, 1e6, 10)
-    alfa = np.arange(-5, 5.1, 0.5)
+    """
+    Precompute cL and cD of a profile using xfoil implementation as functions
+    of angle of attack and reynolds number. In this way the xfoil package is
+    called only once at the init phase, and it does not slow down following
+    modules.
+    The interpolating function is created using a spline 2D function provided
+    by the scipy package.
+    """
+    # Please BE AWARE that the interval of reynolds number and angles of attack,
+    # as well as the interval steps have been carefully selected to guarantee
+    # accurate results for the minimum run time.
+    # Don't change this arrays if you don't know what you're doing!
+    Re = np.linspace(2e4, 1e6, 10) # list of reynolds number that the interpolating
+                                   # function will cover
+    alfa = np.arange(-5, 5.1, 0.5) # list of angles of attack that the interpolating
+                                   # function will cover
+
+
+    # Initialize lists:
     clalfa = []
-    clre = []
+    clre   = []
     cdalfa = []
-    cdre = []
+    cdre   = []
 
     for R in Re:
-        xf.Re = R
+        xf.Re = R # sets the reynolds number for the analysis
         for a in alfa:
-            cl, cd, cm, cp = xf.a(a)
+            cl, cd, cm, cp = xf.a(a) # xfoil analysis
             clalfa.append(cl)
             cdalfa.append(cd)
         clre.append(clalfa)
@@ -67,16 +56,16 @@ def interpolate_wing_coefficients(xf):
     y = Re
     zlift = np.array(clre).T
     zdrag = np.array(cdre).T
-    # Togli i nan values dalle liste che mi sfanculano l'interpolazione
-    #zlift = np.nan_to_num(zlift)
-    #zdrag = np.nan_to_num(zdrag)
-    # Fill in NaN's...
+    # xfoil analysis often leads to nan values on the results. This seriously affects
+    # the interpolating function. To avoid that, nan values are eliminated and
+    # missing values are filled in based on nearby values via a linear interpolation.
     mask = np.isnan(zlift)
     zlift[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zlift[~mask])
     mask = np.isnan(zdrag)
-    zdrag[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zdrag[~mask])   
-    
+    zdrag[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zdrag[~mask])
+
+    # Scipy interpolating function
     clFunction = RectBivariateSpline(x,y,zlift)
     cdFunction = RectBivariateSpline(x,y,zdrag)
-    
+
     return clFunction, cdFunction
