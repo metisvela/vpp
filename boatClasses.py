@@ -7,7 +7,7 @@ from foil_geometry import geometry_v_foil
 from stabilita_scafo import hull_stability
 import pandas as pd
 import numpy as np
-from utilities import dynamic_pressure, lift_coefficients_2D, lift_coefficients_3D, interpolate_wing_coefficients
+from utilities import dynamic_pressure, lift_coefficients_3D, interpolate_wing_coefficients
 from foil_forces_calculation import forces_v_foil
 from scipy.interpolate import interp1d
 import xfoil
