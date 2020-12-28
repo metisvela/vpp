@@ -7,21 +7,34 @@ Created on Sun Dec 27 10:36:00
 """
 import scipy.optimize
 import numpy as np
+import sys
 
 
 def vpp(Boat, Sails, Crew, Foil, Keel, Sea):
     AWAvector = np.arange(20, 100,1)
     TWAlist = []
-    TWS = 6.5
+    TWS = 5
     BSlist = []
     leeAngleList = []
     rollList = []
     for AWA in AWAvector:
-        BSguess = 5
-        BSlow = BSguess - 2
-        BSup = BSguess + 2
+        BSlow = 2
+        BSup = 5
+        
+    try:
         BS = scipy.optimize.bisect(f,BSlow,BSup, rtol=0.001, args=(Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA))
-
+    except ValueError:
+        lowLimit = f(BS, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA)
+        upLimit  = f(BS, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA)
+        if np.sign(lowLimit) == -1 and np.sign(upLimit) == -1:
+            print('Fatal error!')
+            print('The drag is too high. Try reducing the lower limit of the boat speed interval')
+            sys.exit()
+        elif np.sign(lowLimit) == 1 and np.sign(upLimit) == 1:
+            print(lowLimit, upLimit)
+            print('Fatal error!')
+            print('The drag is too low. Try raising the upper limit of the boat speed interval')
+            sys.exit()
         # Compute TWA for the polar graph:
         TWA,_ = Sails.velocity_triangle(AWA, BS, TWS)
         BSlist.append(float(BS))
@@ -53,10 +66,25 @@ def g(delta, boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA):
 
 def f(boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA):
     deltalow = -1
-    deltaup = 5
+    deltaup = 10
     delta = (deltalow+deltaup)/2
-    Boat.leewayAngle = scipy.optimize.bisect(g,deltalow,deltaup, rtol=0.001, args=(boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA))
-
+    try:
+        Boat.leewayAngle = scipy.optimize.bisect(g,deltalow,deltaup, rtol=0.001, args=(boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA))
+    except ValueError:
+        lowLimit = g(deltalow, boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA)
+        upLimit  = g(deltaup, boatSpeed, Boat, Sea, Crew, Sails, Keel, Foil, TWS, AWA)
+        if np.sign(lowLimit) == -1 and np.sign(upLimit) == -1:
+            print('Fatal error!')
+            print('The keel does not produce enough lift. Change leeway angle ' 
+                  + 'interval or increase keel area. Also consider raising the '
+                  + 'lower limit of boat speed interval')
+            sys.exit()
+        elif np.sign(lowLimit) == 1 and np.sign(upLimit) == 1:
+            print(lowLimit, upLimit)
+            print('Fatal error!')
+            print('The sails do not produce enough sideward force. Consider '
+                  + 'checking the geometry or check xfoil results for the keel for errors.')
+            sys.exit()
     sMoment, sFwd, sLeeway          = Sails.sail_forces(Boat, Sea, boatSpeed, TWS, AWA)
     kLeeway, kLift, kMoment, kDrag  = Keel.keel_forces(Boat, Sea, boatSpeed)
     fMoment, fLift, fDrag, fLeeway  = Foil.foil_forces(Boat, Sea, boatSpeed)
