@@ -4,7 +4,7 @@ facilitarne la modifica
 """
 import xfoil
 import numpy as np
-from scipy.interpolate import interp2d
+from scipy.interpolate import RectBivariateSpline
 
 def lift_coefficients_2D(Foil, angleOfAttack, boatSpeed, Sea):
     """
@@ -45,8 +45,8 @@ def dynamic_pressure(Sea, boatSpeed):
     return 0.5 * Sea.waterDensity * boatSpeed**2
 
 def interpolate_wing_coefficients(xf):
-    Re = np.arange(1e4, 1e7, 1e6)
-    alfa = np.arange(0, 10, 1)
+    Re = np.linspace(2e4, 1e6, 10)
+    alfa = np.arange(-5, 5.1, 0.5)
     clalfa = []
     clre = []
     cdalfa = []
@@ -65,8 +65,8 @@ def interpolate_wing_coefficients(xf):
 
     x = alfa
     y = Re
-    zlift = np.array(clre)
-    zdrag = np.array(cdre)
+    zlift = np.array(clre).T
+    zdrag = np.array(cdre).T
     # Togli i nan values dalle liste che mi sfanculano l'interpolazione
     #zlift = np.nan_to_num(zlift)
     #zdrag = np.nan_to_num(zdrag)
@@ -76,9 +76,7 @@ def interpolate_wing_coefficients(xf):
     mask = np.isnan(zdrag)
     zdrag[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), zdrag[~mask])   
     
-    clFunction = interp2d(x,y,zlift)
-    cdFunction = interp2d(x,y,zdrag)
+    clFunction = RectBivariateSpline(x,y,zlift)
+    cdFunction = RectBivariateSpline(x,y,zdrag)
     
-    import matplotlib.pyplot as plt
-    plt.plot(alfa, clFunction(1e4,alfa))
     return clFunction, cdFunction
