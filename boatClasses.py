@@ -69,7 +69,7 @@ class Foil:
         self.gamma1 = foilsDict["gamma1"]
         self.gamma2 = foilsDict["gamma2"]
         self.chord  = foilsDict["chord"]
-        self.camber = 0.5 #gradi di camber EFFETTIVO
+        self.camber = foilsDict["keying"] #gradi di camber EFFETTIVO
         self.profile = foilsDict['profile']
         self.xCoord = wingProfiles[self.profile]['x']
         self.yCoord = wingProfiles[self.profile]['y']
