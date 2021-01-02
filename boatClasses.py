@@ -20,7 +20,8 @@ class Boat:
         self.beamWaterl = boatDict["beamWaterl"]
         self.canoeDraft = boatDict["canoeDraft"]
         self.midshipCoeff = boatDict["midshipCoeff"]
-        self.displacement = boatDict["displacement"]
+        self.maxDisplacement = boatDict['displacement']
+        self.displacement = None 
         self.prismCoeff = boatDict["prismCoeff"]
         self.longCentBuoy = boatDict["longCentBuoy"]
         self.longCentFlot = boatDict["longCentFlot"]
@@ -93,8 +94,10 @@ class Foil:
     def foil_forces(self, Boat, Sea, boatSpeed):
         # Recall the current geometries based on roll angle and foil characteristics
         gm               = geometry_v_foil(self, Boat, Sea, boatSpeed)
-        AoATip           = self.camber * np.cos(np.radians(self.gamma2)) # degrees, effective angle of the tip
-        AoAStrut         = self.camber * np.cos(np.radians(self.gamma1)) # degrees, effective angle of the strut
+        AoATip           = self.camber * np.cos(np.radians(self.gamma2)) \
+                            - Boat.leewayAngle*np.sin(np.radians(self.gamma2))# degrees, effective angle of the tip
+        AoAStrut         = self.camber * np.cos(np.radians(self.gamma1)) \
+                            - Boat.leewayAngle*np.sin(np.radians(self.gamma1)) # degrees, effective angle of the strut
         reynolds         = boatSpeed*self.chord / Sea.cinematicViscosity # np array storing all reynolds number
         aspectRatioStrut = gm['strut span'] / self.chord
         aspectRatioTip   = gm['tip span'] / self.chord

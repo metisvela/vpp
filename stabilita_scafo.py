@@ -36,7 +36,7 @@ def hull_stability(Boat, Sea, boatSpeed):
     # da compilare
 
 
-    rightingMoment = Boat.displacement * 1000 * Sea.gravityConstant * GZ # displacement da m3 a kg
+    rightingMoment = Boat.maxDisplacement * 1000 * Sea.gravityConstant * GZ # displacement da m3 a kg
     
     try:
         rightingMoment = rightingMoment * np.ones(shape=boatSpeed.size) # adatto a vettore per il plotting
