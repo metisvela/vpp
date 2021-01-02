@@ -22,7 +22,6 @@ def geometry_v_foil(Foil, Boat, Sea, boatSpeed):
     # costanti idrodinamiche
     pressioneDinamica = 0.5 * Sea.waterDensity * boatSpeed**2 #kg/(m2 s) pressione dinamica a 2.5 m/s
     corda = Foil.chord #cm, corda di braccio e avambraccio
-    cL = Foil.cL # coefficiente di lift
 
     theta = np.radians(Boat.rollAngle)
 
