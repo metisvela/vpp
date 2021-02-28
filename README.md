@@ -45,3 +45,6 @@ Nella fase di processing è sufficiente inserire dentro la variabile **vpplist**
 
 ### Post-processing
 Per vizualizzare correttamente i grafici finali, inserire nella variabile **legend** una stringa per ogni Vpp() inizializzata (ad esempio "No Foil", "Foil wortmann", "Deriva grande", ecc.)
+
+# Sì ok, ma come lo faccio partire?
+Una volta finito di settare tutto, è sufficiente fare una run del modulo **main**, seguire l'output a terminale e godersi le polari una volta finito. Di solito, fra inizializzazione e processing, il tutto prende circa 30 secondi.
