@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 classe per la raccolta dei dati di una barca e delle sue funzioni
 di resistenza e stabilità
@@ -21,7 +22,7 @@ class Boat:
         self.canoeDraft = boatDict["canoeDraft"]
         self.midshipCoeff = boatDict["midshipCoeff"]
         self.maxDisplacement = boatDict['displacement']
-        self.displacement = None 
+        self.displacement = None
         self.prismCoeff = boatDict["prismCoeff"]
         self.longCentBuoy = boatDict["longCentBuoy"]
         self.longCentFlot = boatDict["longCentFlot"]

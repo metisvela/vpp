@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 File dove raccogliere tutte le funzioni utilizzate più di una volta nel codice per
 facilitarne la modifica

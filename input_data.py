@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 utilizzare questa pagina per inserire i dati che verranno utilizzati
 dal programma.
@@ -25,21 +26,49 @@ def input_data_dictionary():
              "Athena"     :    {},
              "Arete"      :    {},
              "Aura"       :    {},
-             "A2020"      :    {}
+             "A2021"      :    {"lengthWaterl" : 4.6,          # length of the waterline [m]
+                                 "beamWaterl" : 1.0299,          # maximum beam of waterline [m]
+                                 "canoeDraft" : 0.1379,           # maximum draft of canoe body [m]
+                                 "midshipCoeff" : 0.725,        # coefficient of midship [adim]
+                                 "displacement" : 246*0.001,    # displacement [m^3]
+                                 "prismCoeff" : 0.582,          # prismatic coefficient [adim]
+                                 "longCentBuoy" : (0.0665+2.3), # longitudinal centre of buoyancy,
+                                                                # 0 at the forward perpendicular [m]
+                                 "longCentFlot" : (0.4126+2.3), # longitudinal centre of flotation,
+                                                                # 0 at the forward perpendicular [m]
+                                 "wettedArea" : 3.607,          # wetted area of canoe body [m^2]
+                                 "foilBeam" : 0.5,              # distance of the exit point of the foils,
+                                                                # from midship [m]
+                                 "freeboard" : 0.3,             # freeboard height [m]
+                                 "foilHeight" : 0.5             # height of the exit point of the foil from LWL [m]
+                                }
              }
 
 
     # Dictionary storing foil configurations
-    foilsDict = {"gamma1" : 30,
-                 "gamma2" : 40,
-                 "chord"  : 0.2,
-                 "keying" : 2,
-                 "profile" : 'wortmann'
+    foilsDict = {'Foil1' :{"gamma1" : 30,
+                             "gamma2" : 40,
+                             "chord"  : 0.2,
+                             "keying" : 2,
+                             "profile" : 'wortmann'
+                             },
+                 'noFoil' : {'gamma1' : 40,
+                             'gamma2' : 30,
+                             'chord'  : 0.0001,
+                             'keying' : 0,
+                             'profile': 'wortmann'
+                             },
+                 'Foil3' :{"gamma1" : 30,
+                             "gamma2" : 40,
+                             "chord"  : 0.2,
+                             "keying" : 2,
+                             "profile" : 'naca0021'
+                             }
                  }
 
     # Dictionary storing possible crews information
     crewsDict = {"Crew 1"  : {"bowmanWeight"   : 80,     # [kg]
-                              "helmsmanWeight" : 60,     # [kg]
+                              "helmsmanWeight" : 50,     # [kg]
                               "bowmanHeight"   : 1.80,   # [m]
                               "helmsmanHeight" : 1.65}}  # [m]
 
@@ -63,12 +92,28 @@ def input_data_dictionary():
                             'Am'  : 10.93,       # main sail area [m^2]
                             'Aj'  : 4.93,        # jib area [m^2]
                             'Ag'  : 17.95,       # gennaker area [m^2]
-                            'genAngle': 50,      # AWA at which gennaker is hoisted [°]
+                            'genAngle': 65,      # AWA at which gennaker is hoisted [°]
                             'xMain': 2.3,        # centre of main sail, x coord [m]
                             'zMain': 3,          # centre of main sail, z coord [m]
                             'xJib' : 2,          # centre of jib, x coord [m]
                             'zJib' : 1.2         # centre of jib, z coord [m]
-                            }
+                            },
+                 'SetSvedese': {'EHM' : 7,           # Mast height from freeboard [m]
+                                'FA'  : 0.3,         # freeboard mean height [m]
+                                'BMAX': 1.2,         # max width of the yacht [m]
+                                'EMDC' : 0.12,       # Mean diameter of mast [m]
+                                'BAD' : 0.8,         # Boma height from freeboard [m]
+                                'H'   : 1,           # Cl correction factor [adim]
+                                'F'   : 1,           # sail correction factor [adim]
+                                'Am'  : 15.01,       # main sail area [m^2]
+                                'Aj'  : 5.7,        # jib area [m^2]
+                                'Ag'  : 12,       # gennaker area [m^2]
+                                'genAngle': 65,      # AWA at which gennaker is hoisted [°]
+                                'xMain': 2.3,        # centre of main sail, x coord [m]
+                                'zMain': 3,          # centre of main sail, z coord [m]
+                                'xJib' : 2,          # centre of jib, x coord [m]
+                                'zJib' : 1.2         # centre of jib, z coord [m]
+                     }
                 }
 
     # Dictionary storing information about the centreboards. Be aware that the
@@ -76,10 +121,14 @@ def input_data_dictionary():
     # elliptic, and so a "quarter-chord-aligned" type of centreboard or rudder
     # is going to be designed.
     keelsDict = {'Keel1' : {'profile' : 'naca0021',              # naca profile
-                            'chord'   : '0.3',                   # mean chord [m]
-                            'span'    : '1.5',                   # span [m]
+                            'chord'   : 0.2,                   # mean chord [m]
+                            'span'    : 1.5                   # span [m]
                             },
-                }
+                 'Keel2' : {'profile' : 'naca0021',
+                            'chord'   : 0.2,
+                            'span'    : 1.3
+                            }
+                 }
 
 
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 funzione per calcolare la resistenza residua dello scafo basata sul modello
 aggiornato di Delft. Per reference, leggi
@@ -12,17 +13,17 @@ from scipy.interpolate import interp1d
 def residuary_resistance(Boat, boatSpeed, Sea):
     a = interpolate_DSYHS_coefficients(Boat.residuaryCoefficients)
     boatSpeedFroude = boatSpeed / (Sea.gravityConstant * Boat.lengthWaterl)**0.5
-    resResistance = (Boat.displacement * Sea.waterDensity * Sea.gravityConstant *
+    resResistance = (Boat.maxDisplacement * Sea.waterDensity * Sea.gravityConstant *
                     (a[0](boatSpeedFroude) +
                     ((
                     a[1](boatSpeedFroude) * Boat.longCentBuoy / Boat.lengthWaterl +
                     a[2](boatSpeedFroude) * Boat.prismCoeff +
-                    a[3](boatSpeedFroude) * Boat.displacement**(2/3) / wetted_area_change_theta(Boat) +
+                    a[3](boatSpeedFroude) * Boat.maxDisplacement**(2/3) / wetted_area_change_theta(Boat) +
                     a[4](boatSpeedFroude) * Boat.beamWaterl / Boat.lengthWaterl +
                     a[5](boatSpeedFroude) * Boat.longCentBuoy / Boat.longCentFlot +
                     a[6](boatSpeedFroude) * Boat.beamWaterl / Boat.canoeDraft +
                     a[7](boatSpeedFroude) * Boat.midshipCoeff
-                    ) * Boat.displacement**(1/3) / Boat.lengthWaterl)))
+                    ) * Boat.maxDisplacement**(1/3) / Boat.lengthWaterl)))
     return resResistance
 
 
@@ -44,7 +45,7 @@ def added_residuary_res(Boat, boatSpeed, Sea):
     """
     u = interpolate_DSYHS_coefficients(Boat.heelCoefficients)
     boatSpeedFroude = boatSpeed / (Sea.gravityConstant * Boat.lengthWaterl)**0.5
-    deltaResidResist = (Boat.displacement * Sea.waterDensity * Sea.gravityConstant *
+    deltaResidResist = (Boat.maxDisplacement * Sea.waterDensity * Sea.gravityConstant *
                        (
                        u[0](boatSpeedFroude) +
                        u[1](boatSpeedFroude) * Boat.lengthWaterl / Boat.beamWaterl +
