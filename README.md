@@ -11,9 +11,7 @@ Per partire, è necessario prima installare i pacchetti:
 - scipy.optimize
 - scipy.misc
 - sys
-- [xfoil](https://pypi.org/project/xfoil/)
-
-Purtroppo l'ultimo modulo è necessario anche per una barca senza foil (viene usato anche per simulare deriva e timone) e sembra dare problemi di installazione su MacOS e Linux.
+- [xfoil](https://pypi.org/project/xfoil/): Solamente se si è intenzionati ad aggiungere nuovi profili non presenti in libreria.
 
 ## Come funziona
 Per analogia con altri programmi per l'ingegneria, questo vpp è suddiviso in pre-processing, processing e post-processing.
