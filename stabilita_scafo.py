@@ -29,18 +29,28 @@ def hull_stability(Boat, Sea, boatSpeed):
 
         GZ = HCB*np.cos(theta) - (VCG - VCB) * np.sin(theta)
 
+    elif (np.radians(Boat.rollAngle) > np.arctan((h-Tc)/b)) & (np.radians(Boat.rollAngle) < np.radians(30)) :
+        theta = np.radians(Boat.rollAngle)
+        x = b/2 - (h-Tc)*(np.tan(theta))**(-1)
+        y = b/2 + Tc*(np.tan(theta))**(-1)
+        z = h
+        xG = (x**2 + y**2 + x*y)/(3*(x+y))
+        yG = (z*(x+y))/(3*(x+y))
+        VCB = yG
+        HCB = b/2 - xG
+
+        GZ = HCB*np.cos(theta) - (VCG - VCB) * np.sin(theta)
+
     else:
-        print("Angoli troppo alti per calcolare la stabilità di scafo!")
+        raise Exception('Angoli troppo alti per la stabilità di scafo')
         GZ = 0
-    # caso 3
-    # da compilare
 
 
     rightingMoment = Boat.maxDisplacement * 1000 * Sea.gravityConstant * GZ # displacement da m3 a kg
-    
-    try:
-        rightingMoment = rightingMoment * np.ones(shape=boatSpeed.size) # adatto a vettore per il plotting
-    except AttributeError:
-        pass 
-        
-    return rightingMoment 
+
+    # try:
+    #     rightingMoment = rightingMoment * np.ones(shape=boatSpeed.size) # adatto a vettore per il plotting
+    # except AttributeError:
+    #     pass
+
+    return rightingMoment
