@@ -11,7 +11,7 @@ import numpy as np
 from utilities import dynamic_pressure, lift_coefficients_3D, interpolate_wing_coefficients
 from foil_forces_calculation import forces_v_foil
 from scipy.interpolate import interp1d
-import xfoil
+import pickle
 
 class Boat:
     def __init__(self, boatDict):
@@ -79,17 +79,13 @@ class Foil:
         self.chord  = foilsDict["chord"]
         self.camber = foilsDict["keying"] #gradi di camber EFFETTIVO
         self.profile = foilsDict['profile']
-        self.xCoord = wingProfiles[self.profile]['x']
-        self.yCoord = wingProfiles[self.profile]['y']
-
-        # Init and precompute xfoil profiles, lift and drag coefficients
-        profilo = xfoil.model.Airfoil(self.xCoord, self.yCoord)
-        self.xf = xfoil.XFoil()
-        self.xf.airfoil = profilo
-        self.xf.n_crit = 3
-        self.xf.repanel()
-        self.xf.max_iter=50
-        self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
+        # Load the precomputed interpolation functions from folder
+        # "foil-profiles"
+        handler = open('foil-profiles/'+self.profile, 'rb')
+        f_list = pickle.load(handler)
+        self.liftFunction = f_list[0]
+        self.dragFunction = f_list[1]
+        #self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
         return
 
     def foil_forces(self, Boat, Sea, boatSpeed):
@@ -143,15 +139,21 @@ class Keel:
         self.area            = self.chord * self.span
         self.aspectRatio     = self.span / self.chord
         self.profile         = keelDict['profile']
-        self.xCoord          = wingProfiles[self.profile]['x']
-        self.yCoord          = wingProfiles[self.profile]['y']
-        profilo = xfoil.model.Airfoil(self.xCoord, self.yCoord)
-        self.xf = xfoil.XFoil()
-        self.xf.airfoil = profilo
-        self.xf.n_crit = 3
-        self.xf.repanel()
-        self.xf.max_iter=50
-        self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
+        #self.xCoord          = wingProfiles[self.profile]['x']
+        #self.yCoord          = wingProfiles[self.profile]['y']
+        #profilo = xfoil.model.Airfoil(self.xCoord, self.yCoord)
+        #self.xf = xfoil.XFoil()
+        #self.xf.airfoil = profilo
+        #self.xf.n_crit = 3
+        #self.xf.repanel()
+        #self.xf.max_iter=50
+        # Load the precomputed interpolation functions from folder
+        # "foil-profiles"
+        handler = open('foil-profiles/'+self.profile, 'rb')
+        f_list = pickle.load(handler)
+        self.liftFunction = f_list[0]
+        self.dragFunction = f_list[1]
+        #self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
 
         return
 
@@ -331,6 +333,11 @@ class Sails:
 
         xCE = self.xMain - a/l * (self.xMain-self.xJib) # x coordinate of total CE
         zCE = self.zMain - a/l * (self.zMain - self.zJib) # y coordinate of total CE
+
+        # Return information on the location of the CLR based on the sail plan.
+        # The amount of lead is taken from Larsson (2011)
+        xCLR = xCE - 0.05*4.6
+        #print('xCLR = ',xCLR, '\n only valid for 4.6 m long yachts')
         return xCE, zCE
 
     def sail_forces(self, Boat, Sea, boatSpeed, TWS, AWA):
