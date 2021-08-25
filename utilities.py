@@ -3,7 +3,7 @@
 File dove raccogliere tutte le funzioni utilizzate più di una volta nel codice per
 facilitarne la modifica
 """
-#import xfoil
+import xfoil
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 

@@ -18,8 +18,6 @@ class Vpp():
         self.BSlist    = []
         self.leeAngleList = []
         self.rollList  = []
-        self.sailMoments = []
-        self.keelMoments = []
         self.convergenceMethod = 'newton'
         self.Boat = Boat
         self.Sea = Sea
@@ -51,8 +49,6 @@ class Vpp():
             self.TWAlist.append(float(TWA))
             self.leeAngleList.append(float(self.Boat.leewayAngle))
             self.rollList.append(float(self.Boat.rollAngle))
-            self.sailMoments.append(float(self.Sails.pitchMoment))
-            self.keelMoments.append(float(self.Keel.pitchMoment))
         return
 
     def f(self, boatSpeed, AWA):
