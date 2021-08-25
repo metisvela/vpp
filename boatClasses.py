@@ -154,6 +154,7 @@ class Keel:
         self.liftFunction = f_list[0]
         self.dragFunction = f_list[1]
         #self.liftFunction, self.dragFunction = interpolate_wing_coefficients(self.xf)
+        self.pitchMoment = 0
 
         return
 
@@ -180,6 +181,7 @@ class Keel:
         # Calculate coordinates of the center of lateral resistance
         xCLR, zCLR = self.boat_CLR(Boat)
         keelMoment = lift * zCLR
+        self.pitchMoment = zCLR * drag
         return leewayLift, upwdLift, keelMoment, drag
 
     def boat_CLR(self, Boat):
@@ -214,6 +216,7 @@ class Sails:
         self.xJib  = sailsDict['xJib']
         self.zJib = sailsDict['zJib']
         self.An   = self.Am + self.Aj # upwind sail area
+        self.pitchMoment = 0
         return
 
     def sails_coefficients(self, AWA, Boat):
@@ -357,4 +360,5 @@ class Sails:
         # Calculate capsize moment of sails
         _, zCE = self.sail_CE()
         capMoment = Fcapsize * zCE
+        self.pitchMoment = Fadvance * zCE
         return capMoment, Fadvance, Fcapsize
