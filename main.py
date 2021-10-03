@@ -4,7 +4,19 @@
 script per il calcolo del modello di stabilità  di tutta la barca
 (scafo+equipaggio+foil)
 """
-from boatClasses import Boat, Crew, Foil, Sea, Keel, Sails
+import sys
+# Add packages (folders with modules in them)
+sys.path.insert(0, "boat-components")
+
+# from boatClasses import Boat, Crew, Foil, Sea, Keel, Sails
+
+from hull import Boat
+from sails import Sails
+from foils import Foil
+from keel_and_rudder import Keel
+from sea import Sea
+from crew import Crew
+
 from interactive_plot import interactive_plot
 from input_data import input_data_dictionary
 import matplotlib.pyplot as plt
@@ -31,7 +43,7 @@ Olimpics_1 = Sails(sailsDict['Set 1'])
 Crew = Crew(crewsDict["Crew 1"])
 
 # Init foils
-noFoil = Foil(foilsDict['noFoil'], wingProfiles)
+noFoil = Foil(foilsDict['Foil1'], wingProfiles)
 
 # Init rudder and keel
 # TODO: add rudder functionalities
