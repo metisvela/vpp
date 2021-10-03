@@ -3,9 +3,18 @@
 File dove raccogliere tutte le funzioni utilizzate più di una volta nel codice per
 facilitarne la modifica
 """
-import xfoil
+###########################
+# Only for use with new foil profiles (not present in foil-profiles/):
+use_xfoil = False
+###########################
+
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
+if use_xfoil == True:
+    import xfoil
+else:
+    pass
+
 
 def lift_coefficients_3D(cl, cd, aspectRatio):
     cl3D = cl / (1 + 2 / aspectRatio)
