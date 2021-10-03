@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-utilizzare questa pagina per inserire i dati che verranno utilizzati
-dal programma.
+Use this page to store all data that can be used by the vpp engine.
 """
 import numpy as np
 

@@ -17,46 +17,47 @@ from postprocess import postprocess
 #############################################################################
 # PRE - PROCESSING
 
-# Dizionario per lo storage dei dati dei vari scafi. Forse è più semplice salvare
-# i dati in un excel e usare pandas per importarli
+# Extract data from external dictionary to run the analysis
 boatsDict, foilsDict, crewsDict, seasDict, \
     sailsDict, keelsDict, wingProfiles = input_data_dictionary()
 
-# Inizializzo le barche
+# Init hulls
 Ate = Boat(boatsDict["Ate"])#inserisco tutti i dati in qualche modo
 
-# Inizializzo le vele
+# Init sails
 Olimpics_1 = Sails(sailsDict['Set 1'])
 
-# Inizializzo l'equipaggio
+# Init crew
 Crew = Crew(crewsDict["Crew 1"])
 
-# Inizializzo foil
-#Foil1 = Foil(foilsDict['Foil1'], wingProfiles)
-#Foil3 = Foil(foilsDict['Foil3'], wingProfiles)
+# Init foils
 noFoil = Foil(foilsDict['noFoil'], wingProfiles)
 
-# Inizializzo deriva e timone
-#Deriva1 = Keel(keelsDict['Keel1'], wingProfiles)
+# Init rudder and keel
+# TODO: add rudder functionalities
 Deriva2 = Keel(keelsDict['Keel1'], wingProfiles)
-#Timone = Keel(0.13, 1)
 
-# Inizializzo mare
+# Init regatta course
 Garda = Sea(seasDict["Garda"])
 
+# Init apparent wind angles
 AWAvector = np.arange(20, 140, 1)
+
+# Init true wind speed
 TWS = 2.5
 
-
+# Init vpp analysis
 vpp1 = Vpp(Ate, Garda, Crew, Olimpics_1, Deriva2, noFoil, AWAvector, TWS)
 #vpp3 = Vpp(Ate, Garda, Crew, Olimpics_1, Deriva2, Foil3, AWAvector, TWS)
 #vpp2 = Vpp(Ate, Garda, Crew, Olimpics_1, Deriva2, Foil1, AWAvector, TWS)
+
+# Group all vpp analysis in a list
+vpplist = [vpp1]#, vpp2]#, vpp3]
 ##############################################################################
 # PROCESSING
 
+# Old interactive plot used for educational purposes
 #interactive_plot(Ate, Foil1, np.arange(1,TWS,0.1), Garda, Crew)
-
-vpplist = [vpp1]#, vpp2]#, vpp3]
 
 for vpp in vpplist:
     startTime = time.time()
@@ -64,8 +65,10 @@ for vpp in vpplist:
     executionTime = (time.time() - startTime)
     print('time passed: ',executionTime)
 
-
 ##############################################################################
 # POST - PROCESSING
+
+# Choose a descriptive name for each vpp analysis
 legend = ['No foil']#, 'wortmann']# 'naca64012', 'naca0021']
+
 postprocess(vpplist, legend, TWS)
