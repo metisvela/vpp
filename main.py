@@ -30,8 +30,7 @@ from postprocess import postprocess
 # PRE - PROCESSING
 
 # Extract data from external dictionary to run the analysis
-boatsDict, foilsDict, crewsDict, seasDict, \
-    sailsDict, keelsDict, wingProfiles = input_data_dictionary()
+boatsDict, foilsDict, crewsDict, seasDict,sailsDict, keelsDict, wingProfiles = input_data_dictionary()
 
 # Init hulls
 Ate = Boat(boatsDict["Ate"])#inserisco tutti i dati in qualche modo
@@ -84,3 +83,4 @@ for vpp in vpplist:
 legend = ['No foil']#, 'wortmann']# 'naca64012', 'naca0021']
 
 postprocess(vpplist, legend, TWS)
+plt.show()
